@@ -93,3 +93,10 @@ Kite Connect app; static IP = OCI reserved public IP; daily 2FA login via link s
 
 ## 10. Hosting & cost
 Oracle Cloud Always Free (pay-as-you-go account): VM.Standard.A1.Flex 4 OCPU / 24 GB Arm, Mumbai or Hyderabad, reserved public IP, docker-compose (api, worker, postgres, bot), nightly pg_dump to OCI Object Storage. Hosting ₹0 if within free limits; Kite ₹500; LLM ₹500–1,200 (hard cap in llm.yaml). Budget < ₹2,000/month, OCI budget alert at ₹200.
+
+## 11. Domain & access
+- Domain registered and DNS on Cloudflare (free DNS).
+- `www.<domain>` — **public** portfolio site (Cloudflare Pages, free): architecture, methodology, blog, anonymised backtest reports. No live positions, no account P&L, no trade calls (publishing recommendations can require SEBI Research Analyst registration).
+- `app.<domain>` — **private** trading app via Cloudflare Tunnel (no inbound ports open on OCI) protected by Cloudflare Access (Zero Trust free plan, email OTP for my address only).
+- Kite redirect URL: `https://app.<domain>/kite/callback`.
+- SSH only via Tailscale or my IP; security list opens nothing else.
