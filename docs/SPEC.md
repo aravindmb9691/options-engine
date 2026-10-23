@@ -100,3 +100,12 @@ Oracle Cloud Always Free (pay-as-you-go account): VM.Standard.A1.Flex 4 OCPU / 2
 - `app.<domain>` — **private** trading app via Cloudflare Tunnel (no inbound ports open on OCI) protected by Cloudflare Access (Zero Trust free plan, email OTP for my address only).
 - Kite redirect URL: `https://app.<domain>/kite/callback`.
 - SSH only via Tailscale or my IP; security list opens nothing else.
+
+## 12. Sharing with friends (Telegram, read-only)
+- Two bots, two audiences:
+  - **Private bot** (only my chat ID): login link, proposals with Approve/Reject, positions, account P&L, alerts.
+  - **Friends channel** (private Telegram channel, invite-only, separate bot token, post-only): no buttons, no account data.
+- `engine/bot/publisher.py` builds friends posts from an **allowlist** of fields (regime, VIX/crude summary, screener top-N with edge ratio/IVP, event calendar, learning notes, closed-trade post-mortems in % terms, delayed ≥1 day). Anything not on the allowlist is dropped; tested.
+- Never post: live positions, rupee P&L, order details, raw Kite market data (Kite Connect terms restrict redistribution), "buy/sell X" calls, performance promises.
+- Every post ends with a footer: "Personal research/education, not investment advice. Not SEBI-registered."
+- Free, small, no fees, no paid tiers. Review SEBI RA / finfluencer rules before widening the audience.
