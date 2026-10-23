@@ -1,7 +1,9 @@
-provider: anthropic          # or bedrock
+provider: anthropic          # Anthropic API (billed separately from any Claude subscription)
 models:
-  tagger: claude-haiku-latest     # TODO: set exact model id from Anthropic docs
-  analyst: claude-sonnet-latest   # TODO: set exact model id from Anthropic docs
-max_monthly_spend_usd: 12   # keeps total (Kite + LLM + OCI) under ₹2,000
+  tagger: claude-haiku-latest      # TODO: exact model id from Anthropic docs; news tagging via Batch API
+  analyst: claude-sonnet-latest    # TODO: exact model id; daily brief, position review, agent loop
+  reviewer: null                   # optional Opus-tier for a weekly playbook review; off by default
+embeddings: local:BAAI/bge-small-en-v1.5   # runs on the OCI box, free
+max_monthly_spend_usd: 12          # keeps total (Kite + LLM + OCI) under ₹2,000
 use_prompt_caching: true
 use_batch_for_overnight: true

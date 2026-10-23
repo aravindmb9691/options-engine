@@ -109,3 +109,8 @@ Oracle Cloud Always Free (pay-as-you-go account): VM.Standard.A1.Flex 4 OCPU / 2
 - Never post: live positions, rupee P&L, order details, raw Kite market data (Kite Connect terms restrict redistribution), "buy/sell X" calls, performance promises.
 - Every post ends with a footer: "Personal research/education, not investment advice. Not SEBI-registered."
 - Free, small, no fees, no paid tiers. Review SEBI RA / finfluencer rules before widening the audience.
+
+## 13. Universe & granularity
+- Universe: Nifty + top ~50 F&O stocks by options turnover (point-in-time, rebuilt monthly; include delisted/removed names in backtests to avoid survivorship bias). Not all F&O stocks.
+- **Pooled (panel) models** across the universe with stock/sector features — not one model per stock (only ~30 results events per stock since 2018). Exception: vol forecasts (HAR-RV/GARCH) are fitted per stock, with pooled HAR as fallback for short histories.
+- Granularity: models, screener, backtests on **daily EOD**; event model one row per stock-event; live risk monitoring on **5–15 min** snapshots. From day one, log 15-min option-chain snapshots for the universe to build our own intraday history (Kite does not serve history for expired option contracts).
