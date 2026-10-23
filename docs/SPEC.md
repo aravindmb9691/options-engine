@@ -89,7 +89,7 @@ Tools: `screen()`, `option_chain(sym)`, `positions()`, `events(sym)`, `news(sym)
 | Averaging / re-entry after loss | Blocked |
 
 ## 9. Zerodha
-Kite Connect app; static IP = Lightsail IP; daily 2FA login via link sent on Telegram at 08:45 (no automated TOTP). Positions synced every 5 min. Kite MCP for ad-hoc chat in Claude.
+Kite Connect app; static IP = OCI reserved public IP; daily 2FA login via link sent on Telegram at 08:45 (no automated TOTP). Positions synced every 5 min. Kite MCP for ad-hoc chat in Claude.
 
 ## 10. Hosting & cost
-Lightsail Mumbai 2 GB (~$12) + static IP, docker-compose (api, worker, postgres, bot), nightly pg_dump to S3. Kite ₹500. LLM ₹500–1,200. Target ≤ ₹3,000/month.
+Oracle Cloud Always Free (pay-as-you-go account): VM.Standard.A1.Flex 4 OCPU / 24 GB Arm, Mumbai or Hyderabad, reserved public IP, docker-compose (api, worker, postgres, bot), nightly pg_dump to OCI Object Storage. Hosting ₹0 if within free limits; Kite ₹500; LLM ₹500–1,200 (hard cap in llm.yaml). Budget < ₹2,000/month, OCI budget alert at ₹200.

@@ -1,7 +1,7 @@
 # CLAUDE.md — Options Engine
 
 Personal, multi-strategy options research and trading engine for Indian F&O (NSE), using Zerodha Kite Connect.
-One user (me). Cheap to run (AWS Lightsail Mumbai, 2 GB). Web app (PWA) + Telegram bot for mobile.
+One user (me). Cheap to run (Oracle Cloud Always Free, Ampere A1 Arm, 4 OCPU / 24 GB, Mumbai or Hyderabad; pay-as-you-go account, budget < ₹2,000/month all-in). Web app (PWA) + Telegram bot for mobile.
 Full design: `docs/SPEC.md`. Build order and milestone prompts: `docs/BUILD_PLAN.md`.
 
 ## Non-negotiables (never violate, even if asked casually in a prompt)
@@ -9,7 +9,7 @@ Full design: `docs/SPEC.md`. Build order and milestone prompts: `docs/BUILD_PLAN
 2. **Every live order goes through the approval queue** (`engine/execution/approvals.py`). Default broker is `PaperBroker`. `LiveBroker` requires `TRADING_MODE=live` in env AND an approved proposal id.
 3. **No averaging down / no re-entry in the same underlying + series after a loss.** Enforced in `risk/rules.py`, covered by tests.
 4. **Stock options are physically settled.** Any long/short stock option ITM within 2 trading days of expiry must raise a `SafetyExit`.
-5. **No secrets in the repo.** Keys come from env / AWS Secrets Manager. `.env` is gitignored. Never print tokens in logs.
+5. **No secrets in the repo.** Keys come from env / OCI Vault. `.env` is gitignored. Never print tokens in logs.
 6. **No look-ahead in backtests.** Features at time t may only use data published at or before t (events keyed by *announcement* date).
 7. **Never hard-code expiry days, lot sizes, STT or charges.** Load from `config/market.yaml` (rules change; SEBI 2026 changes are recent).
 8. Changes to `risk/`, `execution/`, `backtest/costs.py` require tests in the same PR.
@@ -41,7 +41,12 @@ engine/
 app/           Streamlit UI (v0)
 kb/            playbook.md (my rules) + sources/ (books, papers; gitignored)
 config/        market.yaml, risk.yaml, strategies.yaml, llm.yaml
-infra/         docker-compose, Lightsail bootstrap, backups
+infra/         docker-compose, OCI bootstrap (cloud-init), backups
+
+## Hosting notes
+- Server is **arm64 (aarch64)**: Docker images and wheels must support linux/arm64.
+- Stay inside Always Free: A1.Flex ≤ 4 OCPU / 24 GB total, block storage ≤ 200 GB total, object storage ≤ 20 GB.
+- Reserved public IP is the Zerodha-whitelisted static IP; never release it.
 research/      notebooks, scratch
 tests/
 data/journal/  my historical P&L exports (gitignored if they contain account data)

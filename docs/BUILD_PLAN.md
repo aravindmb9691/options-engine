@@ -33,7 +33,7 @@ Branch: `m5-risk`
 
 ## M6 · Kite integration (1 week)
 Branch: `m6-kite`
-> Implement KiteBroker using kiteconnect: login URL + callback that stores the daily access token, positions/holdings/orders sync every 5 min, live option chain, order placement only via an approved proposal id and only when TRADING_MODE=live. Secrets from env/AWS Secrets Manager. Never log tokens.
+> Implement KiteBroker using kiteconnect: login URL + callback that stores the daily access token, positions/holdings/orders sync every 5 min, live option chain, order placement only via an approved proposal id and only when TRADING_MODE=live. Secrets from env/OCI Vault. Never log tokens.
 
 ## M7 · UI + Telegram (1–2 weeks)
 Branch: `m7-ui`
@@ -49,7 +49,7 @@ Branch: `m8b-rag`
 
 ## M9 · Deploy (2–3 days)
 Branch: `m9-deploy`
-> docker-compose (api, worker, postgres, bot), Lightsail bootstrap script, static IP, Caddy for HTTPS, nightly pg_dump to S3, health check + Telegram alert on job failure.
+> docker-compose (api, worker, postgres, bot) for linux/arm64, OCI cloud-init bootstrap (Ubuntu 24.04 on VM.Standard.A1.Flex, 4 OCPU / 24 GB), reserved public IP, VCN security list allowing only 22 (my IP) / 80 / 443, Caddy for HTTPS, 4 GB swap, Postgres memory limits, nightly pg_dump to OCI Object Storage (keep 14 days, stay < 20 GB), health check + Telegram alert on job failure, OCI budget alert. Because the box has 24 GB RAM, backfills and backtests may run here overnight too.
 
 ## Then
 3 months paper trading → live at half size with approvals → enable auto safety exits only.

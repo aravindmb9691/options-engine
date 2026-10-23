@@ -1,7 +1,7 @@
 # options-engine
 
 Personal multi-strategy options research & trading engine for NSE F&O (Zerodha Kite Connect).
-Web app + Telegram on mobile, hosted on AWS Lightsail (Mumbai) for ≤ ₹3,000/month.
+Web app + Telegram on mobile, hosted on Oracle Cloud (Always Free Arm, Mumbai/Hyderabad) for < ₹2,000/month all-in.
 
 - Design: [`docs/SPEC.md`](docs/SPEC.md)
 - Build order + Claude Code prompts: [`docs/BUILD_PLAN.md`](docs/BUILD_PLAN.md)
