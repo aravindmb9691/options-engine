@@ -1,0 +1,12 @@
+# Hard limits enforced in engine/risk. The agent/LLM can never change these at runtime.
+capital_inr: 300000                  # TODO: set your actual trading capital
+max_premium_at_risk_per_trade: 20000
+max_open_positions: 3
+max_positions_per_underlying: 1
+max_positions_per_sector: 2
+monthly_loss_stop_inr: 25000         # halt new entries for the rest of the month
+block_reentry_after_loss_same_series: true
+block_averaging_down: true
+strangle_balance_min_ratio: 0.40     # CE share of premium must be within [0.40, 0.60]
+naked_directional_size_multiplier: 0.5
+defined_risk_only: true              # v1: no naked short options

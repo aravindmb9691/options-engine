@@ -1,0 +1,30 @@
+# Market rules. Everything marked TODO(verify) must be checked against the latest
+# NSE / SEBI circulars before backtests are trusted. Versioned by effective_from.
+exchange: NSE
+timezone: Asia/Kolkata
+
+expiry:
+  # TODO(verify): NSE monthly stock/index expiry weekday and weekly index expiries (2026 rules)
+  monthly_weekday: TUESDAY        # last <weekday> of month, holiday -> previous trading day
+  weekly_indices: [NIFTY]         # TODO(verify)
+  source_of_truth: kite_instruments   # always prefer instrument master expiry dates over this rule
+
+lot_sizes:
+  # Never hard-code; load from Kite instrument master / NSE contract file daily.
+  source_of_truth: kite_instruments
+
+settlement:
+  stock_options: physical
+  index_options: cash
+  physical_settlement_warning_days: 2
+
+charges:
+  - effective_from: 2024-10-01
+    brokerage_per_order: 20.0          # Zerodha F&O flat
+    stt_option_sell_pct_premium: 0.1   # TODO(verify) 2026 change reported as 0.15
+    stt_exercised_itm_pct_intrinsic: 0.125   # TODO(verify)
+    exchange_txn_pct_premium: 0.03503  # TODO(verify) NSE options
+    sebi_fee_per_crore: 10.0
+    stamp_duty_buy_pct: 0.003
+    gst_pct: 18.0                       # on brokerage + exchange + SEBI fees
+  # - effective_from: 2026-05-01        # TODO(verify) add when confirmed

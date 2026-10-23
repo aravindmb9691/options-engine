@@ -1,0 +1,19 @@
+# Strategy library. enabled: false until the strategy passes the walk-forward gate.
+long_strangle:
+  enabled: true
+  entry_days_before_event: 2
+  exit: {profit_target_pct: 60, stop_loss_pct: 50, exit_days_after_event: 1, exit_days_before_expiry: 2}
+  min_edge_ratio: 1.2
+  max_ivp: 40
+long_straddle:   {enabled: false}
+debit_spread:    {enabled: false}
+credit_spread:   {enabled: false}
+iron_condor:     {enabled: false}
+iron_fly:        {enabled: false}
+calendar:        {enabled: false}
+
+promotion_gate:
+  min_oos_trades: 100
+  min_expectancy_after_costs_inr: 0
+  paper_trading_months: 3
+  initial_live_size_multiplier: 0.5

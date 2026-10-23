@@ -1,0 +1,7 @@
+provider: anthropic          # or bedrock
+models:
+  tagger: claude-haiku-latest     # TODO: set exact model id from Anthropic docs
+  analyst: claude-sonnet-latest   # TODO: set exact model id from Anthropic docs
+max_monthly_spend_usd: 15
+use_prompt_caching: true
+use_batch_for_overnight: true

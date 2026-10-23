@@ -1,0 +1,26 @@
+# secrets
+.env
+.env.*
+!.env.example
+*.pem
+# account data & licensed material
+data/journal/*
+!data/journal/.gitkeep
+kb/sources/*
+!kb/sources/.gitkeep
+data/raw/
+data/parquet/
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+# notebooks / os
+.ipynb_checkpoints/
+.DS_Store
+.vscode/*
+!.vscode/extensions.json

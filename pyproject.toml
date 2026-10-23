@@ -1,0 +1,47 @@
+[project]
+name = "options-engine"
+version = "0.1.0"
+description = "Personal multi-strategy options engine for NSE F&O"
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.7",
+  "pyyaml>=6.0",
+  "pandas>=2.2",
+  "openpyxl>=3.1",
+  "numpy>=1.26",
+  "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+data = ["httpx>=0.27", "polars>=1.0", "duckdb>=1.0", "pyarrow>=16", "yfinance>=0.2"]
+models = ["arch>=7.0", "lightgbm>=4.3", "py_vollib>=1.0", "scikit-learn>=1.5"]
+app = ["fastapi>=0.111", "uvicorn>=0.30", "streamlit>=1.36", "python-telegram-bot>=21", "apscheduler>=3.10"]
+broker = ["kiteconnect>=5.0"]
+llm = ["anthropic>=0.30"]
+db = ["psycopg[binary]>=3.2", "sqlalchemy>=2.0", "pgvector>=0.3"]
+dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "pre-commit>=3.7", "types-PyYAML"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["engine"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["engine.risk.*", "engine.execution.*"]
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
