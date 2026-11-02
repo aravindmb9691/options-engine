@@ -11,13 +11,13 @@ Branch: `m0-bootstrap` — remaining: verify `TODO(verify)` values, `pre-commit 
 
 ## M1 · Data pipeline (1–2 weeks)
 Branch: `m1-data`
-> Implement `engine/data/nse_bhavcopy.py`: download NSE F&O bhavcopy archives (both old and new formats), parse to a normalized options table (date, symbol, expiry, strike, type, OHLC, close, settle, OI, volume, underlying close), store as partitioned Parquet + Postgres. Idempotent, resumable, polite rate limiting, retries. Then add India VIX history, F&O ban list, and NSE board-meeting/results announcements keyed by announcement date. Tests with small fixtures. CLI: `--from --to`.
+> Implement `engine/data/nse_bhavcopy.py`: download NSE F&O bhavcopy archives (both old and new formats), parse to a normalized options table (date, symbol, expiry, strike, type, OHLC, close, settle, OI, volume, underlying close), store as partitioned Parquet + Postgres. Idempotent, resumable, polite rate limiting, retries. Then add India VIX history, F&O ban list, and NSE board-meeting/results announcements keyed by announcement date. Validate every table with pandera schemas. Tests with small fixtures. Typer CLI: `--from --to`.
 
 > Add `engine/data/macro.py` (Brent, USDINR, aluminium/copper, US10Y, Nasdaq via yfinance/FRED) and `engine/data/journal.py` that imports my Zerodha P&L xlsx files from `data/journal/` into a trades table.
 
 ## M2 · Backtester + costs (2 weeks)
 Branch: `m2-backtest`
-> Build `engine/backtest/`: daily event-driven simulator over reconstructed chains, `costs.py` driven by market.yaml (date-versioned), `fills.py` with a slippage model by moneyness and OI, liquidity filter, walk-forward runner, and a report (expectancy, profit factor, max DD, worst month, top-3-trade share, Monte Carlo). Implement `strategies/base.py` (Protocol from SPEC §4) and `long_strangle.py` first. Write a test that replays my journal trades and compares simulated vs actual P&L.
+> Build `engine/backtest/`: daily event-driven simulator over reconstructed chains, `costs.py` driven by market.yaml (date-versioned), `fills.py` with a slippage model by moneyness and OI, liquidity filter, walk-forward runner, and a report (expectancy, profit factor, max DD, worst month, top-3-trade share, Monte Carlo). Log every run to MLflow (local SQLite): params, git SHA, data range, gate metrics, report as artifact. Implement `strategies/base.py` (Protocol from SPEC §4) and `long_strangle.py` first. Write a test that replays my journal trades and compares simulated vs actual P&L.
 
 ## M3 · More strategies (1–2 weeks)
 Branch: `m3-strategies`

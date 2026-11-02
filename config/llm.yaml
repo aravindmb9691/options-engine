@@ -1,7 +1,7 @@
 provider: anthropic          # Anthropic API (billed separately from any Claude subscription)
 models:
-  tagger: claude-haiku-latest      # TODO: exact model id from Anthropic docs; news tagging via Batch API
-  analyst: claude-sonnet-latest    # TODO: exact model id; daily brief, position review, agent loop
+  tagger: claude-haiku-5-5        # TODO(verify) id in Console; $0.10 in / $0.50 out per MTok, Batch -50%
+  analyst: claude-sonnet-5-5      # TODO(verify) id in Console; $2 in / $10 out per MTok, cache hit $0.10
   reviewer: null                   # optional Opus-tier for a weekly playbook review; off by default
 embeddings: local:BAAI/bge-small-en-v1.5   # runs on the OCI box, free
 max_monthly_spend_usd: 12          # keeps total (Kite + LLM + OCI) under ₹2,000

@@ -1,8 +1,9 @@
 # Strategy library. enabled: false until the strategy passes the walk-forward gate.
 long_strangle:
   enabled: true
-  entry_days_before_event: 2
-  exit: {profit_target_pct: 60, stop_loss_pct: 50, exit_days_after_event: 1, exit_days_before_expiry: 2}
+  entry_days_before_event: 3        # Gao-Xing-Zhang: buy ~3 days before
+  exit: {profit_target_pct: 60, stop_loss_pct: 50, exit_before_event: true,
+         hold_through_if_edge_ratio_gte: 1.2, exit_days_before_expiry: 2}
   min_edge_ratio: 1.2
   max_ivp: 40
 long_straddle:   {enabled: false}
@@ -12,8 +13,12 @@ iron_condor:     {enabled: false}
 iron_fly:        {enabled: false}
 calendar:        {enabled: false}
 
-promotion_gate:
+promotion_gate:                      # see engine/backtest/gate.py
   min_oos_trades: 100
-  min_expectancy_after_costs_inr: 0
+  min_expectancy_r: 0.10             # avg P&L per trade / avg risk per trade, after costs
+  min_payoff_ratio_margin: 0.10      # payoff ratio must beat breakeven (1-p)/p by this much
+  max_drawdown_pct: 25               # at the configured risk_per_trade_pct
+  max_top3_profit_share: 0.50        # not dependent on a few lucky trades
+  min_profit_factor: 1.2
   paper_trading_months: 3
   initial_live_size_multiplier: 0.5

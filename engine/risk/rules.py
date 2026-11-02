@@ -19,6 +19,11 @@ class RiskLimits:
     block_averaging_down: bool = True
     strangle_balance_min_ratio: float = 0.40
     defined_risk_only: bool = True
+    risk_per_trade_pct: float = 2.5
+
+    def max_loss_allowed(self, capital: float) -> float:
+        """Per-trade max loss: % of current capital, capped by the absolute limit."""
+        return min(self.max_premium_at_risk_per_trade, capital * self.risk_per_trade_pct / 100)
 
     @classmethod
     def from_config(cls, cfg: dict[str, object]) -> RiskLimits:
@@ -42,6 +47,7 @@ def check_proposal(
     closed_positions: list[Position],
     month_realized_pnl: float,
     limits: RiskLimits,
+    capital: float | None = None,
 ) -> list[Violation]:
     """Return all violations; an empty list means the proposal may go to the approval queue."""
     v: list[Violation] = []
@@ -49,8 +55,13 @@ def check_proposal(
     if month_realized_pnl <= -limits.monthly_loss_stop_inr:
         v.append(Violation("monthly_halt", f"month P&L {month_realized_pnl:.0f} hit stop"))
 
-    if p.max_loss > limits.max_premium_at_risk_per_trade:
-        v.append(Violation("size_cap", f"max loss {p.max_loss:.0f} > cap"))
+    cap = (
+        limits.max_loss_allowed(capital)
+        if capital is not None
+        else limits.max_premium_at_risk_per_trade
+    )
+    if p.max_loss > cap:
+        v.append(Violation("size_cap", f"max loss {p.max_loss:.0f} > cap {cap:.0f}"))
 
     if len(open_positions) >= limits.max_open_positions:
         v.append(Violation("max_open_positions", f"{len(open_positions)} already open"))
@@ -67,8 +78,7 @@ def check_proposal(
 
     if limits.block_reentry_after_loss_same_series:
         for c in closed_positions:
-            if (c.underlying == p.underlying and c.expiry == p.expiry
-                    and (c.realized_pnl or 0) < 0):
+            if c.underlying == p.underlying and c.expiry == p.expiry and (c.realized_pnl or 0) < 0:
                 v.append(Violation("reentry_after_loss", f"lost on {c.underlying} {c.expiry}"))
                 break
 
@@ -76,8 +86,9 @@ def check_proposal(
         sold = [leg for leg in p.legs if leg.side == Side.SELL]
         bought = [leg for leg in p.legs if leg.side == Side.BUY]
         for s in sold:
-            hedged = any(b.option_type == s.option_type and b.quantity >= s.quantity
-                         for b in bought)
+            hedged = any(
+                b.option_type == s.option_type and b.quantity >= s.quantity for b in bought
+            )
             if not hedged:
                 v.append(Violation("naked_short", f"unhedged short {s.strike}{s.option_type}"))
 
@@ -91,6 +102,13 @@ def check_proposal(
                 v.append(Violation("unbalanced_strangle", f"CE share {share:.0%}"))
 
     return v
+
+
+def lots_for(max_loss_per_lot: float, capital: float, limits: RiskLimits) -> int:
+    """Number of lots that fit the per-trade risk budget (0 = trade does not fit; skip it)."""
+    if max_loss_per_lot <= 0:
+        return 0
+    return int(limits.max_loss_allowed(capital) // max_loss_per_lot)
 
 
 def safety_exits(
@@ -107,8 +125,10 @@ def safety_exits(
         for leg in pos.legs:
             itm = (s > leg.strike) if leg.option_type == OptionType.CE else (s < leg.strike)
             if itm:
-                out.append(Violation(
-                    "physical_settlement",
-                    f"{pos.underlying} {leg.strike}{leg.option_type} ITM, expiry {pos.expiry}",
-                ))
+                out.append(
+                    Violation(
+                        "physical_settlement",
+                        f"{pos.underlying} {leg.strike}{leg.option_type} ITM, expiry {pos.expiry}",
+                    )
+                )
     return out

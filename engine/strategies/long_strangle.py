@@ -13,8 +13,8 @@ class LongStrangle:
     name: str = "long_strangle"
     min_edge_ratio: float = 1.2
     max_ivp: float = 40.0
-    otm_pct: float = 0.04             # strikes ~4% OTM each side
-    entry_days_before_event: int = 2
+    otm_pct: float = 0.04  # strikes ~4% OTM each side
+    entry_days_before_event: int = 3
 
     def eligible(self, ctx: MarketContext) -> bool:
         if ctx.next_event is None or ctx.next_event > ctx.expiry:
@@ -36,9 +36,16 @@ class LongStrangle:
         ce = self._nearest(ctx.chain, ctx.spot * (1 + self.otm_pct), OptionType.CE)
         pe = self._nearest(ctx.chain, ctx.spot * (1 - self.otm_pct), OptionType.PE)
         return [
-            Leg(underlying=ctx.underlying, expiry=ctx.expiry, strike=r.strike,
-                option_type=r.option_type, side=Side.BUY, lots=1,
-                lot_size=ctx.lot_size, price=r.ltp)
+            Leg(
+                underlying=ctx.underlying,
+                expiry=ctx.expiry,
+                strike=r.strike,
+                option_type=r.option_type,
+                side=Side.BUY,
+                lots=1,
+                lot_size=ctx.lot_size,
+                price=r.ltp,
+            )
             for r in (ce, pe)
         ]
 
@@ -46,5 +53,10 @@ class LongStrangle:
         return -sum(leg.premium for leg in legs)
 
     def exit_rules(self) -> ExitRules:
-        return ExitRules(profit_target_pct=60, stop_loss_pct=50,
-                         exit_days_after_event=1, exit_days_before_expiry=2)
+        return ExitRules(
+            profit_target_pct=60,
+            stop_loss_pct=50,
+            exit_before_event=True,
+            hold_through_if_edge_ratio_gte=1.2,
+            exit_days_before_expiry=2,
+        )

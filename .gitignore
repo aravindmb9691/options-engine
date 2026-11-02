@@ -24,3 +24,9 @@ dist/
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
+
+# experiment tracking
+mlruns/
+mlruns.db
+mlflow.db
+mlartifacts/

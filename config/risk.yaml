@@ -1,6 +1,7 @@
 # Hard limits enforced in engine/risk. The agent/LLM can never change these at runtime.
 capital_inr: 300000                  # TODO: set your actual trading capital
-max_premium_at_risk_per_trade: 20000
+risk_per_trade_pct: 2.5             # max loss per trade as % of current capital
+max_premium_at_risk_per_trade: 20000  # absolute cap on top of the % rule
 max_open_positions: 3
 max_positions_per_underlying: 1
 max_positions_per_sector: 2

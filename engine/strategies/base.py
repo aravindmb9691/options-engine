@@ -31,13 +31,13 @@ class MarketContext:
     lot_size: int
     chain: list[ChainRow]
     atm_iv: float | None = None
-    iv_percentile: float | None = None          # 0-100
-    forecast_rv: float | None = None            # annualised, from models.vol_forecast
-    implied_move_pct: float | None = None       # ATM straddle / spot
-    hist_event_move_pct: float | None = None    # median |move| around past events
+    iv_percentile: float | None = None  # 0-100
+    forecast_rv: float | None = None  # annualised, from models.vol_forecast
+    implied_move_pct: float | None = None  # ATM straddle / spot
+    hist_event_move_pct: float | None = None  # median |move| around past events
     next_event: date | None = None
-    regime: str = "normal"                      # normal | high_vol | shock
-    direction_score: float | None = None        # -1..1, only if direction model enabled
+    regime: str = "normal"  # normal | high_vol | shock
+    direction_score: float | None = None  # -1..1, only if direction model enabled
     extra: dict[str, float] = field(default_factory=dict)
 
     @property
@@ -52,6 +52,8 @@ class ExitRules:
     profit_target_pct: float | None = None
     stop_loss_pct: float | None = None
     exit_days_after_event: int | None = None
+    exit_before_event: bool = False
+    hold_through_if_edge_ratio_gte: float | None = None
     exit_days_before_expiry: int = 2
 
 

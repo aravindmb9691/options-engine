@@ -4,31 +4,56 @@ from engine.domain import Leg, OptionType, Position, Proposal, Side
 from engine.risk.rules import RiskLimits, check_proposal, safety_exits
 
 LIM = RiskLimits(
-    max_premium_at_risk_per_trade=20_000, max_open_positions=3,
-    max_positions_per_underlying=1, max_positions_per_sector=2, monthly_loss_stop_inr=25_000,
+    max_premium_at_risk_per_trade=20_000,
+    max_open_positions=3,
+    max_positions_per_underlying=1,
+    max_positions_per_sector=2,
+    monthly_loss_stop_inr=25_000,
 )
 EXP = date(2026, 11, 24)
 
 
 def leg(strike: float, t: OptionType, price: float, side: Side = Side.BUY, lots: int = 1) -> Leg:
-    return Leg(underlying="NATIONALUM", expiry=EXP, strike=strike, option_type=t,
-               side=side, lots=lots, lot_size=3750, price=price)
+    return Leg(
+        underlying="NATIONALUM",
+        expiry=EXP,
+        strike=strike,
+        option_type=t,
+        side=side,
+        lots=lots,
+        lot_size=3750,
+        price=price,
+    )
 
 
 def strangle(ce_px: float = 2.0, pe_px: float = 2.0) -> Proposal:
     legs = [leg(320, OptionType.CE, ce_px), leg(290, OptionType.PE, pe_px)]
-    return Proposal(id="p1", strategy="long_strangle", underlying="NATIONALUM", expiry=EXP,
-                    legs=legs, max_loss=sum(x.price * x.quantity for x in legs), sector="metals")
+    return Proposal(
+        id="p1",
+        strategy="long_strangle",
+        underlying="NATIONALUM",
+        expiry=EXP,
+        legs=legs,
+        max_loss=sum(x.price * x.quantity for x in legs),
+        sector="metals",
+    )
 
 
 def pos(pnl: float | None = None, closed: bool = False) -> Position:
-    return Position(underlying="NATIONALUM", expiry=EXP, strategy="long_strangle",
-                    legs=strangle().legs, opened_on=date(2026, 10, 1),
-                    closed_on=date(2026, 10, 10) if closed else None, realized_pnl=pnl,
-                    sector="metals")
+    return Position(
+        underlying="NATIONALUM",
+        expiry=EXP,
+        strategy="long_strangle",
+        legs=strangle().legs,
+        opened_on=date(2026, 10, 1),
+        closed_on=date(2026, 10, 10) if closed else None,
+        realized_pnl=pnl,
+        sector="metals",
+    )
 
 
-def rules(v): return {x.rule for x in v}
+def rules(v):
+    return {x.rule for x in v}
 
 
 def test_clean_proposal_passes():
@@ -67,3 +92,20 @@ def test_physical_settlement_warning():
     v = safety_exits([pos()], {"NATIONALUM": 330.0}, today=date(2026, 11, 23))
     assert rules(v) == {"physical_settlement"}
     assert safety_exits([pos()], {"NATIONALUM": 300.0}, today=date(2026, 11, 23)) == []
+
+
+def test_pct_of_capital_cap():
+    lim = RiskLimits(**{**LIM.__dict__, "risk_per_trade_pct": 2.5})
+    assert lim.max_loss_allowed(300_000) == 7_500
+    assert lim.max_loss_allowed(2_000_000) == 20_000  # absolute cap wins
+    # 15k strangle fits the absolute cap but not 2.5% of 3L
+    assert "size_cap" in rules(check_proposal(strangle(), [], [], 0, lim, capital=300_000))
+    assert check_proposal(strangle(), [], [], 0, lim, capital=1_000_000) == []
+
+
+def test_lots_for():
+    from engine.risk.rules import lots_for
+
+    lim = RiskLimits(**{**LIM.__dict__, "risk_per_trade_pct": 2.5})
+    assert lots_for(3_000, 300_000, lim) == 2
+    assert lots_for(9_000, 300_000, lim) == 0  # does not fit -> skip, never round up

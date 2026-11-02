@@ -22,6 +22,16 @@ Full design: `docs/SPEC.md`. Build order and milestone prompts: `docs/BUILD_PLAN
 - LLM: Anthropic SDK behind `engine/llm/client.py` (one wrapper; model names in config, cheap model for tagging, stronger model for briefs).
 - Type hints everywhere; small pure functions; no notebooks in `engine/` (notebooks go in `research/`).
 
+## Tooling decisions (keep it light)
+- Orchestration: plain Python CLIs (Typer) + APScheduler/cron. No Kedro/Airflow. Revisit Prefect/Dagster only if >10 interdependent jobs or painful backfills.
+- Experiment tracking: MLflow with a local SQLite backend (`mlruns.db`, gitignored) for every backtest/model run: params, git SHA, data range, gate metrics, report artifact.
+- Data validation: pandera schemas on every ingested table (bhavcopy, events, chain snapshots); fail loudly.
+- Logging: structlog (JSON on the server). Config: YAML in `config/` loaded via engine/config.py.
+
+## MCP servers (`.mcp.json`, project scope)
+- `kite` — Zerodha's hosted Kite MCP (`https://mcp.kite.trade/mcp`). Use it to read holdings, positions, margins, orders and quotes while building and testing. Per Zerodha it is read-only except GTT orders. **Never place, modify or delete GTT orders through MCP**; all orders go through `engine/execution` with approval.
+- `github` — GitHub's remote MCP (issues, PRs, CI status). Needs `GITHUB_PAT` exported in the shell that launches Claude Code (fine-grained token, this repo only). The `gh` CLI is also fine.
+
 ## Layout
 ```
 engine/
@@ -39,8 +49,8 @@ engine/
   api/         FastAPI routes
   bot/         Telegram
 app/           Streamlit UI (v0)
-kb/            playbook.md (my rules) + sources/ (books, papers; gitignored)
-config/        market.yaml, risk.yaml, strategies.yaml, llm.yaml
+kb/            playbook.md (my rules), research/strategy_evidence.md (signal evidence), sources/ (books, papers; gitignored)
+config/        market.yaml, risk.yaml, strategies.yaml, signals.yaml, llm.yaml
 infra/         docker-compose, OCI bootstrap (cloud-init), backups
 
 ## Hosting notes

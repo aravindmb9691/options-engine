@@ -1,0 +1,72 @@
+# Research-backed signals. Evidence: kb/research/strategy_evidence.md
+# status: research (compute + backtest only) | candidate (passed single-signal gate) | live
+# Weights are learned from out-of-sample information coefficients, never set by hand from papers.
+A1_event_edge_ratio:
+  role: vol            # vol | direction | regime
+  status: research
+  fn: event_edge_ratio
+  inputs: [hist_event_abs_moves, implied_move_pct]
+  long_vol_if: ">= 1.2"
+  entry_days_before_event: [3, 2]
+  exit: last_close_before_announcement   # hold through only if edge_ratio >= 1.2
+  refs: [Gao-Xing-Zhang JFQA, Gao-Hu-Zhang SSRN 3595953]
+A2_rv_iv_spread:
+  role: vol
+  status: research
+  fn: rv_iv_spread
+  inputs: [daily_returns_252d, atm_iv_near]
+  rank: cross_sectional_decile
+  long_vol_if: top_decile
+  short_vol_if: bottom_decile      # defined-risk structures only
+  holding_days: 21
+  refs: [Goyal-Saretto 2009 JFE]
+A3_iv_term_slope:
+  role: vol
+  status: research
+  fn: iv_term_slope
+  inputs: [atm_iv_near, atm_iv_next]
+  ex_event_only: true
+  long_vol_if: top_quintile
+  refs: [Vasquez 2017 JFQA]
+A4_straddle_momentum:
+  role: vol
+  status: research
+  fn: straddle_momentum
+  inputs: [monthly_atm_straddle_returns]
+  lookback_months: [6, 36]
+  skip_recent_months: 1
+  refs: [Heston-Jones-Khorram-Li-Mo 2021 JF]
+B1_put_skew:
+  role: direction
+  status: research
+  fn: put_skew
+  inputs: [iv_otm_put_0.95, iv_atm_call]
+  bearish_if: top_quintile
+  refs: [Xing-Zhang-Zhao 2010 JFQA]
+B2_call_put_iv_spread:
+  role: direction
+  status: research
+  fn: call_put_iv_spread
+  inputs: [iv_call_k, iv_put_k]
+  bullish_if: top_quintile
+  refs: [Cremers-Weinbaum 2010 JFQA]
+B3_momentum_12_1:
+  role: direction
+  status: research
+  fn: momentum_12_1
+  inputs: [monthly_close]
+  refs: [IIMA Indian factor library (WML)]
+B4_ts_momentum:
+  role: regime
+  status: research
+  fn: ts_momentum
+  inputs: [monthly_close]
+  lookback_months: 12
+  refs: [Babu et al. Trends Everywhere; CJFA 2020 India]
+excluded:   # documented in Tier C, do not implement as trades
+  - naive_index_short_premium
+  - hold_long_vol_through_results_by_default
+  - pead_drift_india
+  - delta_hedged_idio_vol
+  - dispersion
+  - expiry_week_otm_lottery_buying
